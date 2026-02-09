@@ -30,8 +30,8 @@ export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
         };
 
         return (
-            <div className="flex flex-col h-full">
-                <div ref={ref} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-slate-900/50">
+            <>
+                <div ref={ref} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-slate-900/50 min-h-0">
                     {messages.map((msg, index) => (
                         <ChatMessage key={index} message={msg} />
                     ))}
@@ -71,7 +71,7 @@ export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
                         </button>
                     </form>
                 </div>
-            </div>
+            </>
         );
     }
 );
