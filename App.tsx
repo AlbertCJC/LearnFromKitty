@@ -1,11 +1,13 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { MaterialInput } from './components/MaterialInput';
 import { ChatInterface } from './components/ChatInterface';
 import { CatIcon } from './components/icons/CatIcon';
 import type { ChatMessage } from './types';
 import { getChatResponse } from './services/cerebrasService';
 import { ThemeToggle } from './components/ThemeToggle';
+import { ConfirmModal } from './components/ConfirmModal';
+import { saveChatToPdf } from './utils/pdfGenerator';
 
 const App: React.FC = () => {
   const [isChatActive, setIsChatActive] = useState<boolean>(false);
@@ -13,6 +15,8 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleMaterialsSubmit = useCallback((materials: string) => {
     setStudyContext(materials);
@@ -43,51 +47,85 @@ const App: React.FC = () => {
     }
 
   }, [messages, studyContext]);
-
-  const handleReset = useCallback(() => {
+  
+  const performReset = useCallback(() => {
     setIsChatActive(false);
     setStudyContext('');
     setMessages([]);
     setError(null);
+    setShowConfirmModal(false);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col items-center justify-center p-4 transition-colors">
-      <header className="w-full max-w-4xl mx-auto mb-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <CatIcon className="h-8 w-8 text-rose-500" />
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Learn from Kitty</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          {isChatActive && (
-            <button 
-              onClick={handleReset}
-              className="px-4 py-2 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-md text-sm font-medium transition-colors dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-            >
-              Start Over
-            </button>
-          )}
-          <ThemeToggle />
-        </div>
-      </header>
+  const handleResetRequest = useCallback(() => {
+    if (messages.length > 1) { // Only show modal if there's a convo
+      setShowConfirmModal(true);
+    } else {
+      performReset();
+    }
+  }, [messages, performReset]);
+  
+  const handleSaveAndReset = useCallback(async () => {
+    if (chatContainerRef.current) {
+      try {
+        await saveChatToPdf(chatContainerRef.current);
+      } catch (pdfError) {
+        console.error("Failed to generate PDF:", pdfError);
+        setError("Sorry, there was an error saving the PDF.");
+      }
+    }
+    performReset();
+  }, [performReset]);
 
-      <main className="w-full h-[85vh] max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col">
-        {error && (
-          <div className="p-4 bg-red-100 text-red-700 border-b border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800 text-sm rounded-t-xl">
-            <strong>Error:</strong> {error}
+  return (
+    <>
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col items-center justify-center p-4 transition-colors">
+        <header className="w-full max-w-4xl mx-auto mb-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <CatIcon className="h-8 w-8 text-rose-500" />
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Learn from Kitty</h1>
           </div>
-        )}
-        {isChatActive ? (
-            <ChatInterface 
-                messages={messages} 
-                onSendMessage={handleSendMessage}
-                isLoading={isLoading}
-            />
-        ) : (
-            <MaterialInput onSubmit={handleMaterialsSubmit} isLoading={isLoading} />
-        )}
-      </main>
-    </div>
+          <div className="flex items-center gap-4">
+            {isChatActive && (
+              <button 
+                onClick={handleResetRequest}
+                className="px-4 py-2 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-md text-sm font-medium transition-colors dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+              >
+                Start Over
+              </button>
+            )}
+            <ThemeToggle />
+          </div>
+        </header>
+
+        <main className="w-full h-[85vh] max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col">
+          {error && (
+            <div className="p-4 bg-red-100 text-red-700 border-b border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800 text-sm rounded-t-xl">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+          {isChatActive ? (
+              <ChatInterface 
+                  ref={chatContainerRef}
+                  messages={messages} 
+                  onSendMessage={handleSendMessage}
+                  isLoading={isLoading}
+              />
+          ) : (
+              <MaterialInput onSubmit={handleMaterialsSubmit} isLoading={isLoading} />
+          )}
+        </main>
+      </div>
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleSaveAndReset}
+        onSecondaryAction={performReset}
+        title="Start Over?"
+        message="Do you want to save your conversation to a PDF before starting over?"
+        confirmText="Save & Start Over"
+        secondaryText="Don't Save"
+      />
+    </>
   );
 };
 
