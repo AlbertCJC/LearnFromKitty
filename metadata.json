@@ -1,0 +1,5 @@
+{
+  "name": "Learn from Kitty",
+  "description": "An AI-powered web application to help students study more effectively. Upload your study materials or paste text, and then ask the AI to summarize, create key points, answer questions, or generate quizzes based on the provided context.",
+  "requestFramePermissions": []
+}
