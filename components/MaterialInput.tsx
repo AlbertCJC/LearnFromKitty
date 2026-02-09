@@ -42,7 +42,7 @@ export const MaterialInput: React.FC<MaterialInputProps> = ({ onSubmit, isLoadin
   }, [text, files, onSubmit]);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center overflow-y-auto">
       <BookOpenIcon className="h-16 w-16 text-rose-400 mb-4" />
       <h2 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">Upload Your Study Materials</h2>
       <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-md">Paste text or upload files (.pdf, .docx, .pptx, .txt). We'll get everything ready for your study session.</p>

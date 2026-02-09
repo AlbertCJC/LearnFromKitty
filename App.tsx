@@ -78,8 +78,8 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col items-center justify-center p-4 transition-colors">
-        <header className="w-full max-w-4xl mx-auto mb-4 flex justify-between items-center">
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col p-4 transition-colors">
+        <header className="w-full max-w-4xl mx-auto mb-4 flex justify-between items-center flex-shrink-0">
           <div className="flex items-center gap-3">
             <CatIcon className="h-8 w-8 text-rose-500" />
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Learn from Kitty</h1>
@@ -97,7 +97,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <main className="w-full h-[85vh] max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col">
+        <main className="w-full max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col flex-1 min-h-0">
           {error && (
             <div className="p-4 bg-red-100 text-red-700 border-b border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800 text-sm rounded-t-xl">
               <strong>Error:</strong> {error}
