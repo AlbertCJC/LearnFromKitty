@@ -92,3 +92,11 @@ You can run this project locally with just a few steps.
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+- **Name:** John Albert Carbajal
+- **GitHub:** [@AlbertCJC](https://github.com/AlbertCJC)
+- **Portfolio:** 

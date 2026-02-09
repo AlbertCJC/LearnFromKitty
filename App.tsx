@@ -7,6 +7,7 @@ import type { ChatMessage } from './types';
 import { getChatResponse } from './services/cerebrasService';
 import { ThemeToggle } from './components/ThemeToggle';
 import { ConfirmModal } from './components/ConfirmModal';
+import { PersonaModal } from './components/PersonaModal';
 import { saveChatToPdf } from './utils/pdfGenerator';
 
 const App: React.FC = () => {
@@ -16,6 +17,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
+  const [aiPersona, setAiPersona] = useState<string>('You are a helpful AI study assistant called "Kitty"');
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleMaterialsSubmit = useCallback((materials: string) => {
@@ -36,7 +39,7 @@ const App: React.FC = () => {
     setError(null);
     
     try {
-      const assistantResponse = await getChatResponse(studyContext, newMessages);
+      const assistantResponse = await getChatResponse(studyContext, newMessages, aiPersona);
       setMessages([...newMessages, { role: 'assistant', content: assistantResponse }]);
     } catch (e) {
       console.error(e);
@@ -46,7 +49,7 @@ const App: React.FC = () => {
         setIsLoading(false);
     }
 
-  }, [messages, studyContext]);
+  }, [messages, studyContext, aiPersona]);
   
   const performReset = useCallback(() => {
     setIsChatActive(false);
@@ -75,6 +78,13 @@ const App: React.FC = () => {
     }
     performReset();
   }, [performReset]);
+
+  const handlePersonaSave = (newPersona: string) => {
+    if (newPersona.trim()) {
+      setAiPersona(newPersona.trim());
+    }
+    setIsPersonaModalOpen(false);
+  };
 
   return (
     <>
@@ -109,6 +119,7 @@ const App: React.FC = () => {
                   messages={messages} 
                   onSendMessage={handleSendMessage}
                   isLoading={isLoading}
+                  onPersonaSettingsClick={() => setIsPersonaModalOpen(true)}
               />
           ) : (
               <MaterialInput onSubmit={handleMaterialsSubmit} isLoading={isLoading} />
@@ -124,6 +135,12 @@ const App: React.FC = () => {
         message="Do you want to save your conversation to a PDF before starting over?"
         confirmText="Save & Start Over"
         secondaryText="Don't Save"
+      />
+      <PersonaModal
+        isOpen={isPersonaModalOpen}
+        onClose={() => setIsPersonaModalOpen(false)}
+        onSave={handlePersonaSave}
+        currentPersona={aiPersona}
       />
     </>
   );

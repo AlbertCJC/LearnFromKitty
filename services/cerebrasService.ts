@@ -4,7 +4,8 @@ import { ChatMessage } from "../types";
 
 export async function getChatResponse(
   context: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  aiPersona: string,
 ): Promise<string> {
 
   // 1. UNIVERSAL API KEY EXTRACTION
@@ -37,7 +38,7 @@ export async function getChatResponse(
     dangerouslyAllowBrowser: true 
   });
 
-  const systemInstruction = `You are a helpful AI study assistant called "Kitty". Your goal is to answer questions and discuss topics based *only* on the provided study materials. Do not use any external knowledge. If the answer is not in the materials, say "I can't find that information in the study materials." Be friendly and encouraging.
+  const systemInstruction = `${aiPersona}. Your goal is to answer questions and discuss topics based *only* on the provided study materials. Do not use any external knowledge. If the answer is not in the materials, say "I can't find that information in the study materials." Be friendly and encouraging.
 
 Here are the study materials:
 ---

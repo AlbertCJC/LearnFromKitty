@@ -3,15 +3,17 @@ import { ChatMessage as ChatMessageType } from '../types';
 import { ChatMessage } from './ChatMessage';
 import { SendIcon } from './icons/SendIcon';
 import { CatIcon } from './icons/CatIcon';
+import { UserCircleIcon } from './icons/UserCircleIcon';
 
 interface ChatInterfaceProps {
     messages: ChatMessageType[];
     onSendMessage: (message: string) => void;
     isLoading: boolean;
+    onPersonaSettingsClick: () => void;
 }
 
 export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
-    ({ messages, onSendMessage, isLoading }, ref) => {
+    ({ messages, onSendMessage, isLoading, onPersonaSettingsClick }, ref) => {
         const [input, setInput] = React.useState('');
         const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
@@ -53,6 +55,14 @@ export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
                 </div>
                 <div className="p-4 border-t border-slate-200 dark:border-slate-700">
                     <form onSubmit={handleSubmit} className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={onPersonaSettingsClick}
+                          className="flex-shrink-0 w-10 h-10 bg-slate-200 text-slate-600 rounded-full hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 flex items-center justify-center"
+                          aria-label="Set AI Persona"
+                        >
+                           <UserCircleIcon className="w-6 h-6"/>
+                        </button>
                         <input
                             type="text"
                             value={input}
