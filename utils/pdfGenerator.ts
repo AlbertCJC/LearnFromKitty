@@ -1,72 +1,63 @@
 
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { ChatMessage } from '../types';
 
-export const saveChatToPdf = async (chatElement: HTMLElement) => {
-  if (!chatElement) {
-    throw new Error("Chat element not found for PDF generation.");
+const LINE_HEIGHT = 7; // in mm, for a font size of 11-12
+const MARGIN = 10; // in mm
+
+export const saveChatToPdf = (messages: ChatMessage[]) => {
+  if (!messages || messages.length === 0) {
+    console.warn("No messages to save.");
+    return;
   }
 
-  // Store original styles to restore them later
-  const originalStyles = {
-    height: chatElement.style.height,
-    maxHeight: chatElement.style.maxHeight,
-    overflowY: chatElement.style.overflowY,
-    scrollTop: chatElement.scrollTop,
-  };
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
 
-  try {
-    // Temporarily modify styles to make the entire content visible for capture
-    chatElement.style.height = `${chatElement.scrollHeight}px`;
-    chatElement.style.maxHeight = 'none';
-    chatElement.style.overflowY = 'visible';
-    chatElement.scrollTop = 0;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const usableWidth = pageWidth - 2 * MARGIN;
+  let y = MARGIN + 10; // Start position for text, with extra top margin
 
-    const canvas = await html2canvas(chatElement, {
-      scale: 2, // Higher scale for better quality
-      useCORS: true,
-      backgroundColor: window.getComputedStyle(chatElement).backgroundColor,
-    });
+  // Add a title
+  pdf.setFontSize(16);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Learn from Kitty - Chat Transcript', MARGIN, y);
+  y += LINE_HEIGHT * 2;
 
-    const imgData = canvas.toDataURL('image/png');
-    
-    // A4 page dimensions in mm
-    const pdfWidth = 210; 
-    const pdfHeight = 297;
-    
-    const canvasAspectRatio = canvas.width / canvas.height;
+  pdf.setFontSize(11);
+  pdf.setFont('helvetica', 'normal');
 
-    // Calculate image dimensions to fit on the PDF page
-    const imgWidth = pdfWidth - 20; // with some margin
-    const imgHeight = imgWidth / canvasAspectRatio;
-
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    let heightLeft = imgHeight;
-    let position = 10; // top margin
-
-    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-    heightLeft -= (pdfHeight - 20); // page height with margins
-
-    // If the content is longer than one page, add new pages
-    while (heightLeft > 0) {
-      position = -heightLeft - 10;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= (pdfHeight - 20);
+  messages.forEach(msg => {
+    // Skip the initial greeting message
+    if (msg.role === 'assistant' && msg.content === "Hello! I'm your study kitty. Ask me anything about your materials.") {
+        return;
     }
 
-    pdf.save('learn-from-kitty-chat.pdf');
+    const prefix = msg.role === 'user' ? 'You: ' : 'Kitty: ';
+    
+    // Set font style based on role
+    pdf.setFont('helvetica', msg.role === 'user' ? 'bold' : 'normal');
 
-  } finally {
-    // Crucially, restore original styles to return the UI to its normal state
-    chatElement.style.height = originalStyles.height;
-    chatElement.style.maxHeight = originalStyles.maxHeight;
-    chatElement.style.overflowY = originalStyles.overflowY;
-    chatElement.scrollTop = originalStyles.scrollTop;
-  }
+    const fullText = prefix + msg.content;
+    const lines = pdf.splitTextToSize(fullText, usableWidth);
+
+    const textBlockHeight = lines.length * (LINE_HEIGHT * 0.8);
+
+    // Check if there is enough space on the current page for the next message
+    if (y + textBlockHeight > pageHeight - MARGIN) {
+      pdf.addPage();
+      y = MARGIN; // Reset y to the top margin for the new page
+    }
+    
+    pdf.text(lines, MARGIN, y);
+    
+    // Update y position for the next message block
+    y += textBlockHeight + (LINE_HEIGHT / 2); // Add a little extra space between messages
+  });
+
+  pdf.save('learn-from-kitty-chat.pdf');
 };

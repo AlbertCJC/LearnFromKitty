@@ -30,7 +30,7 @@ The application operates entirely on the client-side:
   - `pdfjs-dist` for PDF files.
   - `mammoth.js` for DOCX files.
   - `jszip` for PPTX files.
-- **PDF Generation**: `jspdf` & `html2canvas`
+- **PDF Generation**: `jspdf`
 - **Module Loading**: ES Modules served via `esm.sh` (no local `node_modules` folder needed).
 
 ## 🏃 Getting Started
@@ -99,4 +99,4 @@ This project is licensed under the MIT License.
 
 - **Name:** John Albert Carbajal
 - **GitHub:** [@AlbertCJC](https://github.com/AlbertCJC)
-- **Portfolio:** 
+- **Portfolio:** [your-portfolio.com](https://your-portfolio.com)

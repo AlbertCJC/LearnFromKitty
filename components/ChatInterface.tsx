@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { ChatMessage as ChatMessageType } from '../types';
 import { ChatMessage } from './ChatMessage';
 import { SendIcon } from './icons/SendIcon';
@@ -12,8 +12,8 @@ interface ChatInterfaceProps {
     onPersonaSettingsClick: () => void;
 }
 
-export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
-    ({ messages, onSendMessage, isLoading, onPersonaSettingsClick }, ref) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = 
+    ({ messages, onSendMessage, isLoading, onPersonaSettingsClick }) => {
         const [input, setInput] = React.useState('');
         const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
@@ -33,7 +33,7 @@ export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
 
         return (
             <>
-                <div ref={ref} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-slate-900/50 min-h-0">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-slate-900/50 min-h-0">
                     {messages.map((msg, index) => (
                         <ChatMessage key={index} message={msg} />
                     ))}
@@ -83,5 +83,4 @@ export const ChatInterface = forwardRef<HTMLDivElement, ChatInterfaceProps>(
                 </div>
             </>
         );
-    }
-);
+    };
