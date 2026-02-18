@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { MaterialInput } from './components/MaterialInput';
 import { ChatInterface } from './components/ChatInterface';
 import { CatIcon } from './components/icons/CatIcon';
@@ -19,7 +19,6 @@ const App: React.FC = () => {
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
   const [aiPersona, setAiPersona] = useState<string>('You are a helpful AI study assistant called "Kitty"');
-  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleMaterialsSubmit = useCallback((materials: string) => {
     setStudyContext(materials);
@@ -67,17 +66,15 @@ const App: React.FC = () => {
     }
   }, [messages, performReset]);
   
-  const handleSaveAndReset = useCallback(async () => {
-    if (chatContainerRef.current) {
-      try {
-        await saveChatToPdf(chatContainerRef.current);
-      } catch (pdfError) {
-        console.error("Failed to generate PDF:", pdfError);
-        setError("Sorry, there was an error saving the PDF.");
-      }
+  const handleSaveAndReset = useCallback(() => {
+    try {
+      saveChatToPdf(messages);
+    } catch (pdfError) {
+      console.error("Failed to generate PDF:", pdfError);
+      setError("Sorry, there was an error saving the PDF.");
     }
     performReset();
-  }, [performReset]);
+  }, [performReset, messages]);
 
   const handlePersonaSave = (newPersona: string) => {
     if (newPersona.trim()) {
@@ -115,7 +112,6 @@ const App: React.FC = () => {
           )}
           {isChatActive ? (
               <ChatInterface 
-                  ref={chatContainerRef}
                   messages={messages} 
                   onSendMessage={handleSendMessage}
                   isLoading={isLoading}
