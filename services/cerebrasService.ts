@@ -53,7 +53,7 @@ ${context}
 
   try {
     const response = await client.chat.completions.create({
-      model: "gpt-oss-120b"", 
+      model: "gpt-oss-120b", 
       messages: [
         { role: "system", content: systemInstruction },
         ...openaiMessages,
